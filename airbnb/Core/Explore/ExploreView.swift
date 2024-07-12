@@ -9,31 +9,33 @@ import SwiftUI
 
 struct ExploreView: View {
     @State private var showDestinationSearchView = false
+    @State var viewModel = ExploreViewModel(service: ExploreService())
+    
     
     var body: some View {
         
         NavigationStack {
             if showDestinationSearchView {
-                DestinationSearchView(show: $showDestinationSearchView)
+                DestinationSearchView(show: $showDestinationSearchView, viewModel: viewModel)
             } else {
                 ScrollView {
-                    SearchAndFilter()
+                    SearchAndFilter(location: $viewModel.searchLocation)
                         .onTapGesture {
                             withAnimation(.spring) {
                                 showDestinationSearchView.toggle()
                             }
                         }
                     LazyVStack (spacing: 40) {
-                        ForEach(0 ... 10, id: \.self) { listing in
+                        ForEach(viewModel.listings) { listing in
                             NavigationLink(value: listing) {
-                                ListingItemView()
+                                ListingItemView(listing: listing)
                             }
                         }
                     }
                     .padding()
                 }
-                .navigationDestination(for: Int.self) { listing in
-                    ListingDetailView()
+                .navigationDestination(for: Listing.self) { listing in
+                    ListingDetailView(listing: listing)
                         .navigationBarBackButtonHidden()
                     
             }
